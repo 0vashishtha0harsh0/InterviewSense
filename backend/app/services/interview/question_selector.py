@@ -17,8 +17,8 @@ async def select_questions(
     exclude_ids = exclude_ids or []
     # Build filter
     query: Dict = {}
-    # Interview type exact match if not empty
-    if interview_type and interview_type.lower() != "all":
+    # Interview type exact match if not empty — Domain-specific is treated as domain-filtered (any type) to avoid insufficient
+    if interview_type and interview_type.lower() not in ["all", "domain-specific"]:
         query["interview_type"] = interview_type
     # Domain: if domain is General or empty, don't filter domain strictly — allow all
     # Otherwise filter by domain

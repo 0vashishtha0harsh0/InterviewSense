@@ -30,6 +30,12 @@ async def lifespan(app: FastAPI):
             logger.info(f"Seed check: {seed_res}")
         except Exception as se:
             logger.warning(f"Seed ensure failed: {se}")
+        # Ensure resumes index
+        try:
+            await db.resumes.create_index("user_id", unique=True)
+            logger.info("Resumes index ensured")
+        except Exception as ie:
+            logger.warning(f"Resumes index warning: {ie}")
     except Exception as e:
         logger.warning(f"MongoDB not available on startup: {e} - API will still run, DB ops will fail until DB is up")
     yield
@@ -40,7 +46,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="InterviewSense API",
     description="AI-Based Mock Interview and Performance Analyzer",
-    version="0.3.0 - M3 Interview Engine",
+    version="0.8.0 - M8 Final Dashboard + Resume",
     lifespan=lifespan,
 )
 
@@ -61,7 +67,7 @@ async def health_check():
     return {
         "status": "ok",
         "service": "InterviewSense API",
-        "version": "0.3.0-M3",
+        "version": "0.8.0-M8",
         "database": "connected" if db_ok else "disconnected",
         "mongodb_url": settings.mongodb_url,
         "db_name": settings.mongodb_db_name,
@@ -74,7 +80,9 @@ async def root():
     return {"message": "InterviewSense API is running", "docs": "/docs", "health": "/api/health"}
 
 
-from .routes import auth as auth_routes, questions as questions_routes, interviews as interviews_routes
+from .routes import auth as auth_routes, questions as questions_routes, interviews as interviews_routes, evaluate as evaluate_routes, resume as resume_routes
 app.include_router(auth_routes.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(questions_routes.router, prefix="/api/questions", tags=["Questions"])
 app.include_router(interviews_routes.router, prefix="/api/interviews", tags=["Interviews"])
+app.include_router(evaluate_routes.router, prefix="/api/evaluate", tags=["Evaluate"])
+app.include_router(resume_routes.router, prefix="/api/resume", tags=["Resume"])

@@ -7,6 +7,9 @@ class InterviewCreate(BaseModel):
     role: str = Field(default="General")
     difficulty: str = Field(default="medium")
     question_count: int = Field(default=10, ge=5, le=15)
+    use_resume: bool = Field(default=False, description="If true, inject personalized resume questions")
+    timed: bool = Field(default=False, description="If true, each question is time-bound")
+    time_per_question: int = Field(default=90, ge=15, le=300, description="Seconds per question when timed")
 
 class InterviewResponse(BaseModel):
     session_id: str = Field(alias="_id")

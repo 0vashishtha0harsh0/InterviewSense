@@ -71,7 +71,7 @@ export default function AdminQuestions() {
           <option value="">All Difficulties</option><option>easy</option><option>medium</option><option>hard</option>
         </select>
         <select value={filters.interview_type} onChange={e=>setFilters({...filters,interview_type:e.target.value})} style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}>
-          <option value="">All Types</option><option>HR</option><option>Behavioral</option><option>Technical</option>
+          <option value="">All Types</option><option>HR</option><option>Behavioral</option><option>Technical</option><option>Domain-specific</option>
         </select>
         <input placeholder="Search..." value={filters.search} onChange={e=>setFilters({...filters,search:e.target.value})} style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db', flex: 1, minWidth: 160 }} />
         <button onClick={fetchQs} style={{ padding: '8px 14px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Filter</button>
@@ -82,7 +82,7 @@ export default function AdminQuestions() {
         {error && <div style={{ background: '#fef2f2', color: '#dc2626', padding: 8, borderRadius: 6, marginBottom: 8, fontSize: 13 }}>{error}</div>}
         <textarea required placeholder="Question text (min 10 chars)" value={form.question_text} onChange={e=>setForm({...form,question_text:e.target.value})} style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #d1d5db', minHeight: 60, marginBottom: 8 }} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
-          <select value={form.interview_type} onChange={e=>setForm({...form,interview_type:e.target.value})} style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}><option>HR</option><option>Behavioral</option><option>Technical</option></select>
+          <select value={form.interview_type} onChange={e=>setForm({...form,interview_type:e.target.value})} style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}><option>HR</option><option>Behavioral</option><option>Technical</option><option>Domain-specific</option></select>
           <select value={form.domain} onChange={e=>setForm({...form,domain:e.target.value})} style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}><option>AI/ML</option><option>Computer Science</option><option>Software Development</option><option>General</option></select>
           <select value={form.difficulty} onChange={e=>setForm({...form,difficulty:e.target.value})} style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }}><option>easy</option><option>medium</option><option>hard</option></select>
           <input placeholder="Role" value={form.role} onChange={e=>setForm({...form,role:e.target.value})} style={{ padding: 8, borderRadius: 6, border: '1px solid #d1d5db' }} />
