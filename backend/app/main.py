@@ -23,6 +23,13 @@ async def lifespan(app: FastAPI):
             logger.info("User email index ensured")
         except Exception as ie:
             logger.warning(f"Index creation warning: {ie}")
+        # Auto-seed questions on startup per user request
+        try:
+            from .services.seed import ensure_seed
+            seed_res = await ensure_seed()
+            logger.info(f"Seed check: {seed_res}")
+        except Exception as se:
+            logger.warning(f"Seed ensure failed: {se}")
     except Exception as e:
         logger.warning(f"MongoDB not available on startup: {e} - API will still run, DB ops will fail until DB is up")
     yield
@@ -33,7 +40,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="InterviewSense API",
     description="AI-Based Mock Interview and Performance Analyzer",
-    version="0.2.0 - M2 Auth",
+    version="0.3.0 - M3 Interview Engine",
     lifespan=lifespan,
 )
 
@@ -54,7 +61,7 @@ async def health_check():
     return {
         "status": "ok",
         "service": "InterviewSense API",
-        "version": "0.2.0-M2",
+        "version": "0.3.0-M3",
         "database": "connected" if db_ok else "disconnected",
         "mongodb_url": settings.mongodb_url,
         "db_name": settings.mongodb_db_name,
@@ -67,5 +74,7 @@ async def root():
     return {"message": "InterviewSense API is running", "docs": "/docs", "health": "/api/health"}
 
 
-from .routes import auth as auth_routes
+from .routes import auth as auth_routes, questions as questions_routes, interviews as interviews_routes
 app.include_router(auth_routes.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(questions_routes.router, prefix="/api/questions", tags=["Questions"])
+app.include_router(interviews_routes.router, prefix="/api/interviews", tags=["Interviews"])

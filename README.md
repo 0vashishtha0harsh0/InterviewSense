@@ -1,6 +1,6 @@
 # InterviewSense — AI-Based Mock Interview and Performance Analyzer
 
-> M2 Auth Complete — Register/Login/JWT + Role Guard working
+> M3 Interview Engine Complete — Question Bank + Session Flow + Auto-Seed
 
 ## Stack (per §5)
 Frontend: Vite + React 19 + React Router + Axios
@@ -47,8 +47,20 @@ npm run dev -- --port 5173 --host 127.0.0.1
 - [x] Demo accounts: `admin@interviewsense.com / admin123 (admin)` , `candidate@example.com / candidate123 (candidate)`
 - [x] Proxy `http://127.0.0.1:5173/api/auth/*` works
 
+### Verify M3
+- [x] Auto-seed 50 questions on startup (10 HR, 10 Behavioral, 10 AI/ML, 10 CS, 10 SD) with concepts/keywords
+- [x] `GET /api/questions` + filters `?domain=&difficulty=&interview_type=&search=` (candidate)
+- [x] `POST/PUT/DELETE /api/questions` admin-only (candidate 403)
+- [x] `POST /api/interviews` → randomized, no dups, respects difficulty with fallback, `question_count` 5-15 configurable
+- [x] `GET /api/interviews` history + `GET /api/interviews/{id}` detail (owner/admin only)
+- [x] `POST /api/interviews/{id}/submit-answer` → neutral `processing → next question` (hidden mock scores), adaptive difficulty `≥80 harder, <60 easier`
+- [x] `POST /api/interviews/{id}/complete` + `InterviewRoom` TTS (`speechSynthesis` Play/Replay/Stop + auto-speak), `Submit → Analyzing... → Next` (no scores shown), `Results` final dashboard after completion
+- [x] `Dashboard` stats + history table, `AdminQuestions` CRUD with filters
+- [x] Insufficient questions 400, duplicate prevention verified, `npm run build` 107kb
+- [x] Frontend: `Setup → Room (Q 1/5) → 5× Submit → Completed → Results`
+
 ## Next Milestones
-M2 ✅ → M3 Question Bank (50 seed) → M4 Whisper → M5 NLP → M6 CV → M7 Scoring (hidden) → M8 Final Dashboard+Resume → M9 Deploy
+M3 ✅ → M4 Whisper (audio → transcript) → M5 NLP → M6 CV → M7 Scoring (hidden) → M8 Final Dashboard+Resume → M9 Deploy
 
 ## Env Vars
 `MONGODB_URL, MONGODB_DB_NAME=interviewsense, JWT_SECRET, WHISPER_MODEL=base, QUESTION_COUNT=10, CORS_ORIGINS, PORT, VITE_API_URL`

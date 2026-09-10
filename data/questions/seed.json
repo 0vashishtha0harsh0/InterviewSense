@@ -1,0 +1,502 @@
+[
+  {
+    "question_text": "Tell me about yourself and your background.",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "easy",
+    "expected_concepts": ["education", "experience", "skills", "career goals"],
+    "keywords": ["background", "experience", "skills", "education"],
+    "follow_up_questions": ["What motivates you?"]
+  },
+  {
+    "question_text": "Why do you want to work for our company?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "easy",
+    "expected_concepts": ["company research", "alignment", "values", "contribution"],
+    "keywords": ["company", "role", "contribution", "growth"],
+    "follow_up_questions": ["What do you know about our products?"]
+  },
+  {
+    "question_text": "What are your greatest strengths and weaknesses?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["self-awareness", "strengths", "weaknesses", "improvement"],
+    "keywords": ["strength", "weakness", "improvement", "self-awareness"],
+    "follow_up_questions": ["How are you working on your weaknesses?"]
+  },
+  {
+    "question_text": "Where do you see yourself in 5 years?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["career goals", "growth", "planning", "commitment"],
+    "keywords": ["goals", "growth", "career", "future"],
+    "follow_up_questions": ["What steps are you taking to get there?"]
+  },
+  {
+    "question_text": "Why should we hire you over other candidates?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["unique value", "skills", "experience", "culture fit"],
+    "keywords": ["hire", "unique", "skills", "value"],
+    "follow_up_questions": ["What makes you stand out?"]
+  },
+  {
+    "question_text": "Describe a challenge you faced at work and how you handled it.",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["problem solving", "resilience", "action", "result"],
+    "keywords": ["challenge", "problem", "solution", "result"],
+    "follow_up_questions": ["What would you do differently now?"]
+  },
+  {
+    "question_text": "How do you handle pressure and tight deadlines?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["time management", "prioritization", "stress management", "communication"],
+    "keywords": ["pressure", "deadline", "prioritization", "stress"],
+    "follow_up_questions": ["Give an example of a tight deadline you met."]
+  },
+  {
+    "question_text": "What are your salary expectations?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "easy",
+    "expected_concepts": ["market research", "flexibility", "value", "negotiation"],
+    "keywords": ["salary", "expectations", "market", "compensation"],
+    "follow_up_questions": ["Are you negotiable?"]
+  },
+  {
+    "question_text": "Do you have any questions for us?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "easy",
+    "expected_concepts": ["curiosity", "engagement", "company knowledge", "role clarity"],
+    "keywords": ["questions", "company", "role", "team"],
+    "follow_up_questions": ["What would you like to know about the team?"]
+  },
+  {
+    "question_text": "How do you handle feedback and criticism?",
+    "interview_type": "HR",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "easy",
+    "expected_concepts": ["openness", "growth mindset", "communication", "improvement"],
+    "keywords": ["feedback", "criticism", "improvement", "learning"],
+    "follow_up_questions": ["Tell me about a time you received tough feedback."]
+  },
+  {
+    "question_text": "Tell me about a time you showed leadership.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["leadership", "initiative", "team", "outcome"],
+    "keywords": ["leadership", "team", "initiative", "outcome"],
+    "follow_up_questions": ["How did your team respond?"]
+  },
+  {
+    "question_text": "Describe a time you had a conflict with a teammate. How did you resolve it?",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["conflict resolution", "communication", "empathy", "collaboration"],
+    "keywords": ["conflict", "resolution", "communication", "team"],
+    "follow_up_questions": ["What did you learn from the conflict?"]
+  },
+  {
+    "question_text": "Tell me about a time you failed and what you learned.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["failure", "learning", "accountability", "growth"],
+    "keywords": ["failure", "learn", "mistake", "growth"],
+    "follow_up_questions": ["How did you apply that learning later?"]
+  },
+  {
+    "question_text": "Describe a situation where you had to make a difficult decision quickly.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "hard",
+    "expected_concepts": ["decision making", "pressure", "judgment", "outcome"],
+    "keywords": ["decision", "difficult", "quick", "judgment"],
+    "follow_up_questions": ["Would you make the same decision again?"]
+  },
+  {
+    "question_text": "Tell me about a time you went above and beyond expectations.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["initiative", "ownership", "extra effort", "impact"],
+    "keywords": ["above", "beyond", "initiative", "impact"],
+    "follow_up_questions": ["Why did you choose to do extra?"]
+  },
+  {
+    "question_text": "Describe a time you had to work with a difficult stakeholder.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "hard",
+    "expected_concepts": ["stakeholder management", "communication", "negotiation", "patience"],
+    "keywords": ["stakeholder", "difficult", "communication", "manage"],
+    "follow_up_questions": ["How did you influence them?"]
+  },
+  {
+    "question_text": "Tell me about a time you had to learn something new quickly.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["learning agility", "adaptability", "resourcefulness", "curiosity"],
+    "keywords": ["learn", "quick", "adapt", "new"],
+    "follow_up_questions": ["What resources did you use?"]
+  },
+  {
+    "question_text": "Describe a time you improved a process or system.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "medium",
+    "expected_concepts": ["process improvement", "initiative", "analysis", "results"],
+    "keywords": ["improve", "process", "system", "efficiency"],
+    "follow_up_questions": ["How did you measure the improvement?"]
+  },
+  {
+    "question_text": "Tell me about a time you received constructive feedback and acted on it.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "easy",
+    "expected_concepts": ["feedback", "openness", "action", "growth"],
+    "keywords": ["feedback", "constructive", "act", "improve"],
+    "follow_up_questions": ["How did you change your behavior?"]
+  },
+  {
+    "question_text": "Tell me about a time you had to persuade someone to see your point of view.",
+    "interview_type": "Behavioral",
+    "domain": "General",
+    "role": "General",
+    "difficulty": "hard",
+    "expected_concepts": ["persuasion", "communication", "empathy", "influence"],
+    "keywords": ["persuade", "convince", "communication", "influence"],
+    "follow_up_questions": ["What was your approach?"]
+  },
+  {
+    "question_text": "What is overfitting in machine learning and how can you prevent it?",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "medium",
+    "expected_concepts": ["training data", "unseen data", "generalization", "noise", "regularization"],
+    "keywords": ["overfitting", "training", "generalization", "regularization"],
+    "follow_up_questions": ["What is regularization?"]
+  },
+  {
+    "question_text": "Explain the difference between supervised and unsupervised learning with examples.",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "easy",
+    "expected_concepts": ["labeled data", "unlabeled data", "classification", "clustering"],
+    "keywords": ["supervised", "unsupervised", "labeled", "clustering"],
+    "follow_up_questions": ["Give an example of unsupervised learning."]
+  },
+  {
+    "question_text": "What is the bias-variance tradeoff?",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "hard",
+    "expected_concepts": ["bias", "variance", "underfitting", "overfitting", "generalization"],
+    "keywords": ["bias", "variance", "tradeoff", "generalization"],
+    "follow_up_questions": ["How do you balance bias and variance?"]
+  },
+  {
+    "question_text": "Explain how a decision tree works and its pros and cons.",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "medium",
+    "expected_concepts": ["splitting", "features", "overfitting", "interpretability"],
+    "keywords": ["decision tree", "splitting", "features", "interpretability"],
+    "follow_up_questions": ["What is pruning?"]
+  },
+  {
+    "question_text": "What is cross-validation and why is it important?",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "medium",
+    "expected_concepts": ["validation", "generalization", "k-fold", "overfitting"],
+    "keywords": ["cross-validation", "k-fold", "validation", "generalization"],
+    "follow_up_questions": ["Explain k-fold cross-validation."]
+  },
+  {
+    "question_text": "Describe the difference between bagging and boosting.",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "hard",
+    "expected_concepts": ["ensemble", "bagging", "boosting", "variance", "bias"],
+    "keywords": ["bagging", "boosting", "ensemble", "random forest"],
+    "follow_up_questions": ["What is Random Forest?"]
+  },
+  {
+    "question_text": "What is a confusion matrix and how do you interpret precision and recall?",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "medium",
+    "expected_concepts": ["true positive", "false positive", "precision", "recall", "F1"],
+    "keywords": ["confusion matrix", "precision", "recall", "F1"],
+    "follow_up_questions": ["When is precision more important than recall?"]
+  },
+  {
+    "question_text": "Explain gradient descent and its variants.",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "hard",
+    "expected_concepts": ["gradient", "learning rate", "SGD", "mini-batch", "convergence"],
+    "keywords": ["gradient descent", "learning rate", "SGD", "optimization"],
+    "follow_up_questions": ["What is learning rate decay?"]
+  },
+  {
+    "question_text": "What is the difference between classification and regression?",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "easy",
+    "expected_concepts": ["discrete labels", "continuous values", "examples", "algorithms"],
+    "keywords": ["classification", "regression", "discrete", "continuous"],
+    "follow_up_questions": ["Give examples of each."]
+  },
+  {
+    "question_text": "How does a convolutional neural network (CNN) work?",
+    "interview_type": "Technical",
+    "domain": "AI/ML",
+    "role": "ML Engineer",
+    "difficulty": "hard",
+    "expected_concepts": ["convolution", "filters", "pooling", "feature extraction"],
+    "keywords": ["CNN", "convolution", "pooling", "filters"],
+    "follow_up_questions": ["What is max pooling?"]
+  },
+  {
+    "question_text": "Explain the time complexity of quicksort and its best/worst cases.",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["divide and conquer", "pivot", "O(n log n)", "O(n^2)"],
+    "keywords": ["quicksort", "complexity", "pivot", "divide"],
+    "follow_up_questions": ["How to avoid worst case?"]
+  },
+  {
+    "question_text": "What is the difference between a stack and a queue?",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "easy",
+    "expected_concepts": ["LIFO", "FIFO", "operations", "use cases"],
+    "keywords": ["stack", "queue", "LIFO", "FIFO"],
+    "follow_up_questions": ["Give real-world examples."]
+  },
+  {
+    "question_text": "Explain how a hash table works and how collisions are handled.",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["hash function", "bucket", "chaining", "open addressing"],
+    "keywords": ["hash table", "collision", "chaining", "bucket"],
+    "follow_up_questions": ["What is load factor?"]
+  },
+  {
+    "question_text": "What is the difference between process and thread?",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["process", "thread", "memory", "context switching"],
+    "keywords": ["process", "thread", "memory", "concurrency"],
+    "follow_up_questions": ["What is multithreading?"]
+  },
+  {
+    "question_text": "Explain normalization in databases and its normal forms.",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "hard",
+    "expected_concepts": ["redundancy", "1NF", "2NF", "3NF", "anomalies"],
+    "keywords": ["normalization", "1NF", "2NF", "3NF", "redundancy"],
+    "follow_up_questions": ["When would you denormalize?"]
+  },
+  {
+    "question_text": "What is a deadlock and how can it be prevented?",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "hard",
+    "expected_concepts": ["mutual exclusion", "hold and wait", "circular wait", "prevention"],
+    "keywords": ["deadlock", "prevention", "resource", "circular"],
+    "follow_up_questions": ["What are the Coffman conditions?"]
+  },
+  {
+    "question_text": "Explain the difference between TCP and UDP.",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["reliable", "connection", "flow control", "use cases"],
+    "keywords": ["TCP", "UDP", "reliable", "connection"],
+    "follow_up_questions": ["When would you use UDP?"]
+  },
+  {
+    "question_text": "What is object-oriented programming and its four pillars?",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "easy",
+    "expected_concepts": ["encapsulation", "inheritance", "polymorphism", "abstraction"],
+    "keywords": ["OOP", "encapsulation", "inheritance", "polymorphism"],
+    "follow_up_questions": ["Explain polymorphism with example."]
+  },
+  {
+    "question_text": "How does garbage collection work in programming languages?",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "hard",
+    "expected_concepts": ["memory management", "mark and sweep", "reference counting", "leaks"],
+    "keywords": ["garbage collection", "memory", "mark-sweep", "leak"],
+    "follow_up_questions": ["What is memory leak?"]
+  },
+  {
+    "question_text": "What is Big O notation and why is it important?",
+    "interview_type": "Technical",
+    "domain": "Computer Science",
+    "role": "Software Developer",
+    "difficulty": "easy",
+    "expected_concepts": ["complexity", "performance", "scalability", "comparison"],
+    "keywords": ["Big O", "complexity", "performance", "scalability"],
+    "follow_up_questions": ["What is O(1) vs O(n)?"]
+  },
+  {
+    "question_text": "Explain REST API principles and HTTP methods.",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "easy",
+    "expected_concepts": ["REST", "GET", "POST", "PUT", "DELETE", "stateless"],
+    "keywords": ["REST", "API", "HTTP", "stateless"],
+    "follow_up_questions": ["What is difference between PUT and PATCH?"]
+  },
+  {
+    "question_text": "What is the difference between SQL and NoSQL databases?",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["relational", "non-relational", "schema", "scalability", "ACID"],
+    "keywords": ["SQL", "NoSQL", "relational", "scalability"],
+    "follow_up_questions": ["When would you use MongoDB?"]
+  },
+  {
+    "question_text": "Explain the concept of microservices architecture.",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["services", "independence", "scalability", "communication", "deployment"],
+    "keywords": ["microservices", "monolith", "scalability", "deployment"],
+    "follow_up_questions": ["Microservices vs monolith pros/cons?"]
+  },
+  {
+    "question_text": "What is CI/CD and why is it important in software development?",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["continuous integration", "continuous deployment", "automation", "testing"],
+    "keywords": ["CI/CD", "pipeline", "automation", "deployment"],
+    "follow_up_questions": ["What tools have you used for CI/CD?"]
+  },
+  {
+    "question_text": "How do you handle version control with Git? Explain branching strategy.",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "easy",
+    "expected_concepts": ["branching", "merge", "pull request", "Git flow"],
+    "keywords": ["Git", "branch", "merge", "pull request"],
+    "follow_up_questions": ["What is Git rebase?"]
+  },
+  {
+    "question_text": "What is Docker and how does containerization help?",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["container", "image", "isolation", "portability", "deployment"],
+    "keywords": ["Docker", "container", "image", "isolation"],
+    "follow_up_questions": ["Docker vs VM difference?"]
+  },
+  {
+    "question_text": "Explain agile methodology and Scrum framework.",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "easy",
+    "expected_concepts": ["agile", "Scrum", "sprint", "standup", "retrospective"],
+    "keywords": ["agile", "Scrum", "sprint", "standup"],
+    "follow_up_questions": ["What is a sprint retrospective?"]
+  },
+  {
+    "question_text": "What is testing pyramid and types of testing?",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "medium",
+    "expected_concepts": ["unit", "integration", "e2e", "coverage"],
+    "keywords": ["testing", "unit", "integration", "e2e"],
+    "follow_up_questions": ["Explain TDD."]
+  },
+  {
+    "question_text": "How do you ensure security in web applications? Mention OWASP top vulnerabilities.",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "hard",
+    "expected_concepts": ["OWASP", "injection", "XSS", "CSRF", "authentication"],
+    "keywords": ["security", "OWASP", "XSS", "injection"],
+    "follow_up_questions": ["How to prevent SQL injection?"]
+  },
+  {
+    "question_text": "What is the difference between authentication and authorization?",
+    "interview_type": "Technical",
+    "domain": "Software Development",
+    "role": "Software Developer",
+    "difficulty": "easy",
+    "expected_concepts": ["authentication", "authorization", "identity", "permissions"],
+    "keywords": ["authentication", "authorization", "identity", "permissions"],
+    "follow_up_questions": ["Give examples of each."]
+  }
+]

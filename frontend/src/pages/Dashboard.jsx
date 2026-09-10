@@ -5,12 +5,13 @@ import api from '../services/api.js';
 export default function Dashboard() {
   const [health, setHealth] = useState(null);
   const [stats, setStats] = useState({ interviews: 0, avg: '-', best: '-', latest: '-' });
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     api.get('/api/health').then(r => setHealth(r.data)).catch(() => setHealth({ status: 'error' }));
-    // stats will be populated in M3/M8 from /api/interviews
     api.get('/api/interviews').then(r => {
       const list = r.data || [];
+      setHistory(list);
       if (list.length) {
         const scores = list.filter(x => x.overall_score != null).map(x => x.overall_score);
         const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
@@ -22,7 +23,7 @@ export default function Dashboard() {
   }, []);
 
   const cards = [
-    { label: 'Interviews Completed', value: stats.interviews },
+    { label: 'Interviews', value: stats.interviews },
     { label: 'Average Score', value: stats.avg },
     { label: 'Best Score', value: stats.best },
     { label: 'Latest Score', value: stats.latest },
@@ -37,7 +38,7 @@ export default function Dashboard() {
 
       {health && (
         <div style={{ padding: 12, borderRadius: 8, marginBottom: 16, background: health.status === 'ok' ? '#ecfdf5' : '#fef2f2', border: `1px solid ${health.status === 'ok' ? '#a7f3d0' : '#fecaca'}`, fontSize: 13 }}>
-          <strong>API:</strong> {health.status} | DB: {health.database} | Whisper: {health.whisper_model} | DB: {health.db_name}
+          <strong>API:</strong> {health.status} | DB: {health.database} | Whisper: {health.whisper_model} | DB: {health.db_name} | Questions auto-seeded 50
         </div>
       )}
 
@@ -51,9 +52,31 @@ export default function Dashboard() {
       </div>
 
       <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 20 }}>
-        <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Interview History</h2>
-        <p style={{ color: '#6b7280', fontSize: 14 }}>M1: History will populate after M3 interview engine. Placeholder for §48-49 trend chart.</p>
-        <div style={{ marginTop: 12, padding: 16, background: '#f9fafb', borderRadius: 8, textAlign: 'center', color: '#9ca3af' }}>No interviews yet — click New Interview to start</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h2 style={{ fontWeight: 600 }}>Interview History</h2>
+          <span style={{ fontSize: 12, color: '#6b7280' }}>{history.length} sessions</span>
+        </div>
+        {history.length === 0 ? (
+          <div style={{ padding: 24, background: '#f9fafb', borderRadius: 8, textAlign: 'center', color: '#9ca3af' }}>No interviews yet — click New Interview to start</div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
+              <thead><tr style={{ background: '#f9fafb', textAlign: 'left' }}><th style={{ padding: '8px 10px' }}>Date</th><th style={{ padding: '8px 10px' }}>Type</th><th style={{ padding: '8px 10px' }}>Domain</th><th style={{ padding: '8px 10px' }}>Score</th><th style={{ padding: '8px 10px' }}>Status</th><th style={{ padding: '8px 10px' }}>Action</th></tr></thead>
+              <tbody>
+                {history.map(h => (
+                  <tr key={h._id} style={{ borderTop: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '8px 10px' }}>{new Date(h.created_at).toLocaleDateString()}</td>
+                    <td style={{ padding: '8px 10px' }}>{h.interview_type}</td>
+                    <td style={{ padding: '8px 10px' }}>{h.domain}</td>
+                    <td style={{ padding: '8px 10px', fontWeight: 600 }}>{h.overall_score ?? '—'}</td>
+                    <td style={{ padding: '8px 10px' }}><span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, background: h.status==='completed'?'#dcfce7':'#fef3c7', color: h.status==='completed'?'#166534':'#92400e' }}>{h.status}</span></td>
+                    <td style={{ padding: '8px 10px' }}><Link to={h.status==='completed' ? `/results/${h._id}` : `/interview/${h._id}`} style={{ color: '#4f46e5' }}>{h.status==='completed' ? 'View Result' : 'Continue'}</Link></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
