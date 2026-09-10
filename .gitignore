@@ -1,0 +1,39 @@
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+.env
+backend/.env
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Uploads & models (large)
+uploads/*
+!uploads/.gitkeep
+*.pt
+*.bin
+*.onnx
+
+# Temp media
+temp/
+tmp/
