@@ -1,11 +1,41 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
+import {
+  Badge,
+  EmptyState,
+  Icon,
+  Loader,
+  PageHeader,
+  Sparkline,
+  StatCard,
+  TrendChart,
+  statusTone,
+} from '../components/ui.jsx';
+
+const EMPTY_STATS = {
+  interviews: 0,
+  avg: '-',
+  best: '-',
+  latest: '-',
+  avgContent: '-',
+  avgDelivery: '-',
+};
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [health, setHealth] = useState(null);
-  const [stats, setStats] = useState({ interviews: 0, avg: '-', best: '-', latest: '-', avgContent: '-', avgDelivery: '-' });
+  const [stats, setStats] = useState(EMPTY_STATS);
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchHistory = async () => {
     try {
@@ -13,28 +43,37 @@ export default function Dashboard() {
       const list = r.data || [];
       setHistory(list);
       if (list.length) {
-        const scores = list.filter(x => x.overall_score != null).map(x => x.overall_score);
-        const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
+        const scores = list.filter((x) => x.overall_score != null).map((x) => x.overall_score);
+        const avg = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '-';
         const best = scores.length ? Math.max(...scores) : '-';
-        const latest = scores.length ? scores[scores.length-1] : '-';
-        if (scores.length===0) {
-          setStats({ interviews: list.length, avg, best, latest, avgContent:'-', avgDelivery:'-' });
+        const latest = scores.length ? scores[scores.length - 1] : '-';
+        if (scores.length === 0) {
+          setStats({ interviews: list.length, avg, best, latest, avgContent: '-', avgDelivery: '-' });
         } else {
-          const details = await Promise.all(list.slice(0,5).map(h=> api.get(`/api/interviews/${h._id}`).then(r=>r.data).catch(()=>null)));
-          const cs = details.flatMap(d=> d?.answers?.map(a=>a.content_score).filter(x=>x!=null) || []);
-          const ds = details.flatMap(d=> d?.answers?.map(a=>a.delivery_score).filter(x=>x!=null) || []);
-          const avgC = cs.length ? (cs.reduce((a,b)=>a+b,0)/cs.length).toFixed(1) : '-';
-          const avgD = ds.length ? (ds.reduce((a,b)=>a+b,0)/ds.length).toFixed(1) : '-';
+          const details = await Promise.all(
+            list.slice(0, 5).map((h) => api.get(`/api/interviews/${h._id}`).then((res) => res.data).catch(() => null)),
+          );
+          const cs = details.flatMap((d) => d?.answers?.map((a) => a.content_score).filter((x) => x != null) || []);
+          const ds = details.flatMap((d) => d?.answers?.map((a) => a.delivery_score).filter((x) => x != null) || []);
+          const avgC = cs.length ? (cs.reduce((a, b) => a + b, 0) / cs.length).toFixed(1) : '-';
+          const avgD = ds.length ? (ds.reduce((a, b) => a + b, 0) / ds.length).toFixed(1) : '-';
           setStats({ interviews: list.length, avg, best, latest, avgContent: avgC, avgDelivery: avgD });
         }
       } else {
-        setStats({ interviews: 0, avg: '-', best: '-', latest: '-', avgContent:'-', avgDelivery:'-' });
+        setStats(EMPTY_STATS);
       }
-    } catch {}
+    } catch {
+      /* keep last known state */
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    api.get('/api/health').then(r => setHealth(r.data)).catch(() => setHealth({ status: 'error' }));
+    api
+      .get('/api/health')
+      .then((r) => setHealth(r.data))
+      .catch(() => setHealth({ status: 'error' }));
     fetchHistory();
   }, []);
 
@@ -59,91 +98,291 @@ export default function Dashboard() {
     }
   };
 
-  const cards = [
-    { label: 'Interviews', value: stats.interviews },
-    { label: 'Average Score', value: stats.avg },
-    { label: 'Best Score', value: stats.best },
-    { label: 'Latest Score', value: stats.latest },
-    { label: 'Avg Content', value: stats.avgContent },
-    { label: 'Avg Delivery', value: stats.avgDelivery },
-  ];
+  const trendScores = history
+    .slice()
+    .reverse()
+    .filter((h) => h.overall_score != null)
+    .map((h) => h.overall_score);
 
-  // Trend data for chart
-  const trendScores = history.slice().reverse().filter(h=>h.overall_score!=null).map(h=>h.overall_score);
-  const hasTrend = trendScores.length >= 2;
+  const inProgress = history.find((h) => h.status !== 'completed');
+  const completed = history.filter((h) => h.status === 'completed').length;
+  const first = user?.name?.split(' ')[0] || 'there';
+
+  if (loading && history.length === 0 && !health) {
+    return (
+      <div className="page container">
+        <Loader label="Loading your dashboard…" />
+      </div>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700 }}>Candidate Dashboard</h1>
-        <Link to="/interview/setup" style={{ padding: '10px 18px', background: '#4f46e5', color: '#fff', borderRadius: 8, textDecoration: 'none', fontWeight: 600 }}>+ New Interview</Link>
-      </div>
+    <div className="page container">
+      <PageHeader
+        eyebrow={`${greeting()}, ${first}`}
+        title="Candidate Dashboard"
+        subtitle="Track every mock interview, review your scores and keep the trend pointing up."
+        icon={<Icon name="activity" size={14} />}
+        actions={
+          <>
+            {inProgress && (
+              <Link to={inProgress.status === 'completed' ? `/results/${inProgress._id}` : `/interview/${inProgress._id}`} className="btn btn--outline">
+                <Icon name="play" size={15} />
+                Resume session
+              </Link>
+            )}
+            <Link to="/interview/setup" className="btn btn--primary">
+              <Icon name="plus" size={16} />
+              New Interview
+            </Link>
+          </>
+        }
+      />
 
       {health && (
-        <div style={{ padding: 12, borderRadius: 8, marginBottom: 16, background: health.status === 'ok' ? '#ecfdf5' : '#fef2f2', border: `1px solid ${health.status === 'ok' ? '#a7f3d0' : '#fecaca'}`, fontSize: 13 }}>
-          <strong>API:</strong> {health.status} | DB: {health.database} | Whisper: {health.whisper_model} | Questions auto-seeded 50 | <Link to="/admin/questions" style={{ color: '#7c3aed' }}>Admin</Link>
+        <div className="card card--quiet health-strip rise rise-1" style={{ marginBottom: 20 }}>
+          <span className="health-item">
+            <span className={`health-dot${health.status === 'ok' ? '' : ' health-dot--bad'}`} />
+            <strong style={{ color: 'var(--text)' }}>API</strong>
+            <span>{health.status}</span>
+          </span>
+          <span className="health-item">
+            <Icon name="layers" size={14} />
+            Database: <strong style={{ color: 'var(--text)' }}>{health.database}</strong>
+          </span>
+          <span className="health-item">
+            <Icon name="mic" size={14} />
+            Whisper: <strong style={{ color: 'var(--text)' }}>{health.whisper_model}</strong>
+          </span>
+          <span className="health-item">
+            <Icon name="book" size={14} />
+            50 questions auto-seeded
+          </span>
+          <Link to="/admin/questions" className="row" style={{ gap: 6, marginLeft: 'auto' }}>
+            Question bank <Icon name="arrow" size={14} />
+          </Link>
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 16 }}>
-        {cards.map(c => (
-          <div key={c.label} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 14, textAlign: 'center' }}>
-            <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{c.label}</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: '#111827' }}>{c.value}</div>
-          </div>
-        ))}
+      <div className="grid grid-3" style={{ marginBottom: 20 }}>
+        <StatCard
+          label="Interviews"
+          value={stats.interviews}
+          hint={`${completed} completed session${completed === 1 ? '' : 's'}`}
+          icon={<Icon name="dashboard" size={16} />}
+          tone="brand"
+          delay={1}
+        />
+        <StatCard
+          label="Average Score"
+          value={stats.avg}
+          suffix={stats.avg !== '-' ? '/100' : undefined}
+          hint="Across all scored sessions"
+          icon={<Icon name="target" size={16} />}
+          tone="violet"
+          delay={2}
+        />
+        <StatCard
+          label="Best Score"
+          value={stats.best}
+          suffix={stats.best !== '-' ? '/100' : undefined}
+          hint="Personal record"
+          icon={<Icon name="award" size={16} />}
+          tone="success"
+          delay={3}
+        />
+        <StatCard
+          label="Latest Score"
+          value={stats.latest}
+          suffix={stats.latest !== '-' ? '/100' : undefined}
+          hint="Most recent session"
+          icon={<Icon name="clock" size={16} />}
+          tone="cyan"
+          delay={4}
+        />
+        <StatCard
+          label="Avg Content"
+          value={stats.avgContent}
+          suffix={stats.avgContent !== '-' ? '/100' : undefined}
+          hint="NLP answer quality"
+          icon={<Icon name="book" size={16} />}
+          tone="success"
+          delay={5}
+        />
+        <StatCard
+          label="Avg Delivery"
+          value={stats.avgDelivery}
+          suffix={stats.avgDelivery !== '-' ? '/100' : undefined}
+          hint="Non-verbal behaviour"
+          icon={<Icon name="eye" size={16} />}
+          tone="violet"
+          delay={6}
+        />
       </div>
 
-      {hasTrend && (
-        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-          <h3 style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>Performance Trend</h3>
-          <div style={{ display: 'flex', alignItems: 'end', gap: 4, height: 80 }}>
-            {trendScores.map((s,i)=>(
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: '100%', background: s>=70?'#4f46e5':s>=60?'#f59e0b':'#ef4444', height: `${Math.max(8, s)}%`, borderRadius: '4px 4px 0 0', minHeight: 8 }} title={`${s}`}></div>
-                <span style={{ fontSize: 10, color: '#6b7280' }}>{i+1}</span>
+      <div className="grid grid-2" style={{ marginBottom: 20, alignItems: 'stretch' }}>
+        <div className="card card--pad rise rise-2">
+          <div className="row row--between" style={{ marginBottom: 18 }}>
+            <div>
+              <div className="card-title">Performance Trend</div>
+              <div className="card-sub">Overall score per session, oldest to newest</div>
+            </div>
+            <Badge tone={trendScores.length ? 'info' : 'neutral'}>
+              {trendScores.length} scored
+            </Badge>
+          </div>
+          {trendScores.length >= 2 ? (
+            <TrendChart scores={trendScores} />
+          ) : (
+            <div className="empty" style={{ padding: '30px 10px' }}>
+              <div className="empty-icon">
+                <Icon name="trend" size={22} />
               </div>
-            ))}
-          </div>
-          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6, textAlign: 'center' }}>Session 1 → {trendScores[trendScores.length-1]} (latest)</div>
-          <svg width="100%" height="40" viewBox="0 0 100 40" style={{ marginTop: 8 }}>
-            <polyline fill="none" stroke="#4f46e5" strokeWidth="2" points={trendScores.map((s,i)=>`${(i/(trendScores.length-1))*100},${40 - (s/100)*30 -5}`).join(' ')} />
-            {trendScores.map((s,i)=> <circle key={i} cx={`${(i/(trendScores.length-1))*100}%`} cy={40 - (s/100)*30 -5} r="2" fill="#4f46e5" />)}
-          </svg>
+              <p className="dim small">
+                Complete at least two interviews to unlock your progress trend.
+              </p>
+            </div>
+          )}
         </div>
-      )}
 
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h2 style={{ fontWeight: 600 }}>Interview History</h2>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#6b7280' }}>{history.length} sessions</span>
-            {history.length > 0 && <button onClick={handleDeleteAll} style={{ padding: '4px 10px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>Delete All History</button>}
+        <div className="card card--pad rise rise-3">
+          <div className="card-title" style={{ marginBottom: 6 }}>
+            Score breakdown
+          </div>
+          <div className="card-sub" style={{ marginBottom: 20 }}>
+            How content and delivery compare across recent sessions
+          </div>
+
+          {[
+            { label: 'Average overall', value: stats.avg, icon: 'target', tone: 'brand' },
+            { label: 'Content (NLP)', value: stats.avgContent, icon: 'book', tone: 'success' },
+            { label: 'Delivery (vision)', value: stats.avgDelivery, icon: 'eye', tone: 'violet' },
+          ].map((row) => {
+            const num = Number(row.value);
+            const valid = row.value !== '-' && !Number.isNaN(num);
+            const fill =
+              row.tone === 'success' ? 'success' : row.tone === 'violet' ? 'brand' : num >= 70 ? 'success' : num >= 60 ? 'warn' : 'danger';
+            return (
+              <div key={row.label} style={{ marginBottom: 18 }}>
+                <div className="row row--between" style={{ marginBottom: 8 }}>
+                  <span className="row small" style={{ gap: 9, color: 'var(--text-2)' }}>
+                    <Icon name={row.icon} size={15} />
+                    {row.label}
+                  </span>
+                  <span className="mono strong" style={{ color: 'var(--text)' }}>
+                    {valid ? num.toFixed(1) : '—'}
+                  </span>
+                </div>
+                <div className="bar">
+                  <div
+                    className={`bar-fill bar-fill--${fill}`}
+                    style={{ width: `${valid ? Math.max(2, Math.min(100, num)) : 0}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="divider" style={{ margin: '4px 0 16px' }} />
+          <div className="row row--between">
+            <span className="small dim">Recent trajectory</span>
+            <Sparkline points={trendScores.slice(-8)} tone="brand" />
           </div>
         </div>
+      </div>
+
+      <section className="card card--flush rise rise-3">
+        <div className="card-head">
+          <div>
+            <div className="card-title">Interview History</div>
+            <div className="card-sub">
+              {history.length} session{history.length === 1 ? '' : 's'} recorded · scores unlock after completion
+            </div>
+          </div>
+          {history.length > 0 && (
+            <button type="button" className="btn btn--danger btn--sm" onClick={handleDeleteAll}>
+              <Icon name="trash" size={14} />
+              Delete all
+            </button>
+          )}
+        </div>
+
         {history.length === 0 ? (
-          <div style={{ padding: 24, background: '#f9fafb', borderRadius: 8, textAlign: 'center', color: '#9ca3af' }}>No interviews yet — click New Interview to start</div>
+          <EmptyState
+            icon="sparkle"
+            title="No interviews yet"
+            message="Run your first mock interview to start building a performance history and trend chart."
+            action={
+              <Link to="/interview/setup" className="btn btn--primary">
+                <Icon name="plus" size={16} />
+                Start your first interview
+              </Link>
+            }
+          />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: '#f9fafb', textAlign: 'left' }}><th style={{ padding: '8px 10px' }}>Date</th><th style={{ padding: '8px 10px' }}>Type</th><th style={{ padding: '8px 10px' }}>Domain</th><th style={{ padding: '8px 10px' }}>Score</th><th style={{ padding: '8px 10px' }}>Status</th><th style={{ padding: '8px 10px' }}>View</th><th style={{ padding: '8px 10px', textAlign: 'center' }}>Delete</th></tr></thead>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Domain</th>
+                  <th>Role</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
               <tbody>
-                {history.map(h => (
-                  <tr key={h._id} style={{ borderTop: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '8px 10px' }}>{new Date(h.created_at).toLocaleDateString()}</td>
-                    <td style={{ padding: '8px 10px' }}>{h.interview_type}</td>
-                    <td style={{ padding: '8px 10px' }}>{h.domain}</td>
-                    <td style={{ padding: '8px 10px', fontWeight: 600 }}>{h.overall_score ?? '—'}</td>
-                    <td style={{ padding: '8px 10px' }}><span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, background: h.status==='completed'?'#dcfce7':'#fef3c7', color: h.status==='completed'?'#166534':'#92400e' }}>{h.status}</span></td>
-                    <td style={{ padding: '8px 10px' }}><Link to={h.status==='completed' ? `/results/${h._id}` : `/interview/${h._id}`} style={{ display: 'inline-block', padding: '4px 10px', background: '#4f46e5', color: '#fff', borderRadius: 6, textDecoration: 'none', fontSize: 12 }}>{h.status==='completed' ? 'View' : 'Continue'}</Link></td>
-                    <td style={{ padding: '8px 10px', textAlign: 'center' }}><button onClick={()=>handleDelete(h._id)} title="Delete this interview" style={{ padding: '4px 10px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500 }}>Delete</button></td>
+                {history.map((h) => (
+                  <tr key={h._id}>
+                    <td className="nowrap">
+                      {new Date(h.created_at).toLocaleDateString(undefined, {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </td>
+                    <td className="cell-strong">{h.interview_type}</td>
+                    <td>{h.domain}</td>
+                    <td className="dim small">{h.role}</td>
+                    <td>
+                      <span className="cell-score">{h.overall_score ?? '—'}</span>
+                      {h.overall_score != null && <span className="dim tiny">/100</span>}
+                    </td>
+                    <td>
+                      <Badge tone={statusTone(h.status)}>
+                        <span className="dot" />
+                        {h.status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="cell-actions">
+                        <Link
+                          to={h.status === 'completed' ? `/results/${h._id}` : `/interview/${h._id}`}
+                          className={`btn btn--sm ${h.status === 'completed' ? 'btn--outline' : 'btn--primary'}`}
+                        >
+                          {h.status === 'completed' ? 'View result' : 'Continue'}
+                          <Icon name="arrow" size={13} />
+                        </Link>
+                        <button
+                          type="button"
+                          className="btn btn--danger btn--icon"
+                          title="Delete this interview"
+                          aria-label="Delete this interview"
+                          onClick={() => handleDelete(h._id)}
+                        >
+                          <Icon name="trash" size={14} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

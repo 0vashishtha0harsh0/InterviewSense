@@ -11,6 +11,16 @@ AI: Whisper base→tiny fallback (M4), TF-IDF NLP (M5), OpenCV/MediaPipe (M6)
 
 ## Quick Start — M1
 
+### One-command start (recommended)
+```bash
+./run.sh          # installs deps if needed, starts API + web app
+./run.sh install  # dependency setup only
+./run.sh backend  # API only      ./run.sh frontend  # web app only
+./run.sh --help   # all options
+```
+Creates `backend/.env` from the example on first run, waits for `/api/health` before opening the
+web app, and stops both processes on Ctrl+C. API logs land in `logs/backend.log`.
+
 ### Backend (port 8000)
 ```bash
 cd backend
