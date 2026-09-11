@@ -1,115 +1,465 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import api from '../services/api.js';
+import {
+  Badge,
+  EmptyState,
+  Icon,
+  Loader,
+  Meter,
+  PageHeader,
+  ScoreRing,
+  scoreCategory,
+  scoreTone,
+} from '../components/ui.jsx';
 
-function getCategory(score) {
-  if (score==null || score==='--') return '';
-  if (score>=90) return 'Excellent';
-  if (score>=80) return 'Very Good';
-  if (score>=70) return 'Good';
-  if (score>=60) return 'Needs Improvement';
-  return 'Needs Significant Improvement';
+const NLP_FIELDS = [
+  { key: 'relevance', label: 'Relevance' },
+  { key: 'concept_coverage', label: 'Concept coverage' },
+  { key: 'completeness', label: 'Completeness' },
+  { key: 'clarity', label: 'Clarity' },
+  { key: 'grammar', label: 'Grammar' },
+  { key: 'fluency', label: 'Fluency' },
+];
+
+const CV_FIELDS = [
+  { key: 'face_presence', label: 'Face presence', suffix: '%' },
+  { key: 'eye_contact', label: 'Camera-directed gaze', suffix: '%' },
+  { key: 'movement_indicator', label: 'Movement stability', suffix: '' },
+];
+
+function avg(values) {
+  const valid = values.filter((v) => v != null && !Number.isNaN(Number(v)));
+  if (!valid.length) return null;
+  return Number((valid.reduce((a, b) => a + Number(b), 0) / valid.length).toFixed(1));
 }
 
 export default function Results() {
   const { id } = useParams();
   const [session, setSession] = useState(null);
   const [error, setError] = useState('');
+  const [open, setOpen] = useState(0);
+
   useEffect(() => {
-    api.get(`/api/interviews/${id}`).then(r=>setSession(r.data)).catch(e=>setError(e.response?.data?.detail||'Failed to load'));
+    api
+      .get(`/api/interviews/${id}`)
+      .then((r) => setSession(r.data))
+      .catch((e) => setError(e.response?.data?.detail || 'Failed to load results'));
   }, [id]);
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (!session) return <div style={{ padding: 40, textAlign: 'center' }}>Loading final dashboard...</div>;
+
+  if (error) {
+    return (
+      <div className="page container container--narrow">
+        <div className="card card--pad-lg center">
+          <h1 className="h2">Couldn’t load this report</h1>
+          <p className="muted" style={{ marginTop: 10 }}>{error}</p>
+          <Link to="/dashboard" className="btn btn--primary" style={{ marginTop: 20 }}>
+            Back to dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="page container">
+        <Loader label="Generating your performance dashboard…" />
+      </div>
+    );
+  }
+
   const answers = session.answers || [];
-  const overall = session.overall_score ?? (answers.length ? (answers.reduce((a,b)=>a+(b.overall_score||0),0)/answers.length).toFixed(1) : '--');
-  const contentAvg = answers.length ? (answers.filter(a=>a.content_score!=null).reduce((a,b)=>a+b.content_score,0)/(answers.filter(a=>a.content_score!=null).length||1)).toFixed(1) : '--';
-  const deliveryAvg = answers.length ? (answers.filter(a=>a.delivery_score!=null).reduce((a,b)=>a+b.delivery_score,0)/(answers.filter(a=>a.delivery_score!=null).length||1)).toFixed(1) : '--';
-  // Aggregate feedback
-  const allStrengths = answers.flatMap(a=> a.feedback?.strengths || []);
-  const allImprovements = answers.flatMap(a=> a.feedback?.improvements || []);
-  const allRecs = answers.flatMap(a=> a.feedback?.recommendations || []);
-  const strengthCounts = allStrengths.reduce((acc,s)=>{acc[s]=(acc[s]||0)+1; return acc;},{});
-  const improveCounts = allImprovements.reduce((acc,s)=>{acc[s]=(acc[s]||0)+1; return acc;},{});
-  const topStrength = Object.entries(strengthCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || (overall!=='--' && overall>=70 ? 'Good relevance' : 'Completed');
-  const topImprove = Object.entries(improveCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || 'Maintain consistency';
-  const recommendations = [...new Set(allRecs)].slice(0,5);
-  if (recommendations.length===0) {
-    if (overall!=='--' && overall<60) recommendations.push('Practice answering aloud with structure and fewer fillers.');
-    else recommendations.push('Continue mock interviews to maintain performance.');
+  const contentAvg = avg(answers.map((a) => a.content_score));
+  const deliveryAvg = avg(answers.map((a) => a.delivery_score));
+  const overall =
+    session.overall_score ?? avg(answers.map((a) => a.overall_score));
+
+  const strengthCounts = answers
+    .flatMap((a) => a.feedback?.strengths || [])
+    .reduce((acc, s) => ({ ...acc, [s]: (acc[s] || 0) + 1 }), {});
+  const improveCounts = answers
+    .flatMap((a) => a.feedback?.improvements || [])
+    .reduce((acc, s) => ({ ...acc, [s]: (acc[s] || 0) + 1 }), {});
+
+  const topStrength =
+    Object.entries(strengthCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+    (overall != null && overall >= 70 ? 'Good relevance and structure' : 'Completed a full interview');
+  const topImprove =
+    Object.entries(improveCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Maintain consistency';
+
+  const recommendations = [...new Set(answers.flatMap((a) => a.feedback?.recommendations || []))].slice(0, 5);
+  if (recommendations.length === 0) {
+    recommendations.push(
+      overall != null && overall < 60
+        ? 'Practise answering aloud with a clear structure and fewer filler words.'
+        : 'Keep running mock interviews to maintain this level of performance.',
+    );
   }
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: 24 }}>
-      <h1 style={{ fontSize: 22, fontWeight: 700 }}>Final Performance Dashboard</h1>
-      <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>Interview {id.slice(0,8)} • {session.interview_type} ({session.domain}) • {session.role} • {session.status} {session.completed_at && `• ${new Date(session.completed_at).toLocaleString()}`}</p>
+    <div className="page container">
+      <PageHeader
+        eyebrow="Final performance dashboard"
+        title="Interview analysis report"
+        subtitle={`${session.interview_type} · ${session.domain} · ${session.role} · completed ${
+          session.completed_at ? new Date(session.completed_at).toLocaleString() : 'just now'
+        }`}
+        icon={<Icon name="award" size={14} />}
+        actions={
+          <>
+            <Link to="/dashboard" className="btn btn--outline">
+              <Icon name="arrow" size={15} style={{ transform: 'rotate(180deg)' }} />
+              Dashboard
+            </Link>
+            <Link to="/interview/setup" className="btn btn--primary">
+              <Icon name="plus" size={16} />
+              New interview
+            </Link>
+          </>
+        }
+      />
 
-      <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
-        {[
-          {k:'Overall',v:overall, cat:getCategory(overall)},
-          {k:'Content',v:isNaN(contentAvg)?'--':contentAvg, cat:getCategory(contentAvg)},
-          {k:'Delivery',v:isNaN(deliveryAvg)?'--':deliveryAvg, cat:getCategory(deliveryAvg)}
-        ].map(c=>(
-          <div key={c.k} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-            <div style={{ color: '#6b7280', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>{c.k} Score</div>
-            <div style={{ fontSize: 32, fontWeight: 800, color: c.k==='Overall'?'#4f46e5':c.k==='Content'?'#059669':'#7c3aed' }}>{c.v}/100</div>
-            <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>{c.cat}</div>
-          </div>
-        ))}
-      </div>
+      {/* --------------------------- score rings --------------------------- */}
+      <section className="card card--pad-lg rise rise-1" style={{ marginBottom: 20 }}>
+        <div className="score-hero">
+          <ScoreRing value={overall} label="Overall" caption={scoreCategory(overall)} size={190} stroke={13} />
+          <div className="score-hero-side">
+            <div>
+              <div className="eyebrow" style={{ marginBottom: 8 }}>
+                Session verdict
+              </div>
+              <h2 className="h1" style={{ fontSize: '1.5rem' }}>
+                {scoreCategory(overall)}
+              </h2>
+              <p className="muted small" style={{ marginTop: 8, maxWidth: 520 }}>
+                Overall combines content quality (70%) with non-verbal delivery (30%). Expand any
+                question below to see exactly which signals produced each score.
+              </p>
+            </div>
 
-      <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 12, padding: 14 }}>
-          <div style={{ fontSize: 11, color: '#065f46', fontWeight: 700, textTransform: 'uppercase' }}>Strongest Area</div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: '#065f46', marginTop: 4 }}>{topStrength}</div>
-        </div>
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12, padding: 14 }}>
-          <div style={{ fontSize: 11, color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>Needs Improvement</div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: '#991b1b', marginTop: 4 }}>{topImprove}</div>
-        </div>
-      </div>
-
-      <div style={{ marginTop: 16, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 14 }}>Recommendations</h3>
-        <ol style={{ marginTop: 8, paddingLeft: 18, fontSize: 13, color: '#374151' }}>
-          {recommendations.map((r,i)=><li key={i} style={{ marginBottom: 6 }}>{r}</li>)}
-        </ol>
-        <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>Feedback based on actual NLP (relevance, concept, fluency) and CV (face, eye, movement) scores per §44. No psychological claims.</p>
-      </div>
-
-      <div style={{ marginTop: 16, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 14 }}>Question-wise Breakdown</h3>
-        <p style={{ fontSize: 11, color: '#9ca3af' }}>Scores revealed only after completion per §1A — hidden during interview.</p>
-        <div style={{ marginTop: 12 }}>
-          {answers.length===0 ? <p style={{ color: '#9ca3af' }}>No answers.</p> :
-            answers.map((a,i)=>{
-              const q = session.questions?.[i];
-              return (
-                <div key={a._id} style={{ padding: 12, borderTop: i===0?'none':'1px solid #e5e7eb' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>Q{i+1}: {q?.question_text?.slice(0,90) ?? a.question_id}</div>
-                      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>
-                        <span style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: 4 }}>{q?.difficulty}</span>
-                        <span style={{ marginLeft: 8 }}>Transcript: {a.transcript ? a.transcript.slice(0,100)+(a.transcript.length>100?'...':'') : (a.whisper_error || 'No transcript (audio silent or not provided)')}</span>
-                      </div>
-                      {a.nlp_metrics && <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>NLP: relevance {a.nlp_metrics.relevance} | coverage {a.nlp_metrics.concept_coverage} | completeness {a.nlp_metrics.completeness} | fluency {a.nlp_metrics.fluency} {a.nlp_metrics.missing_concepts?.length ? `| missing: ${a.nlp_metrics.missing_concepts.slice(0,2).join(', ')}` : ''}</div>}
-                      {a.cv_metrics && !a.cv_metrics.error && <div style={{ fontSize: 11, color: '#6b7280' }}>CV: face {a.cv_metrics.face_presence}% | eye {a.cv_metrics.eye_contact}% | movement {a.cv_metrics.movement_indicator} | blink {a.cv_metrics.blink_rate}/min</div>}
-                      {a.cv_metrics?.error && <div style={{ fontSize: 11, color: '#f59e0b' }}>Video: {a.cv_metrics.error}</div>}
-                      {a.feedback && <div style={{ fontSize: 11, color: '#374151', marginTop: 4 }}><strong>Strengths:</strong> {a.feedback.strengths.join(', ')} | <strong>Improve:</strong> {a.feedback.improvements.join(', ')}</div>}
-                    </div>
-                    <div style={{ textAlign: 'right', minWidth: 90 }}>
-                      <div style={{ fontSize: 12, color: '#6b7280' }}>Content</div><div style={{ fontWeight: 700, color: '#059669' }}>{a.content_score ?? '--'}</div>
-                      <div style={{ fontSize: 12, color: '#6b7280' }}>Delivery</div><div style={{ fontWeight: 700, color: '#7c3aed' }}>{a.delivery_score ?? '--'}</div>
-                      <div style={{ fontSize: 12, color: '#6b7280' }}>Overall</div><div style={{ fontWeight: 800, color: '#4f46e5' }}>{a.overall_score ?? '--'}</div>
-                      <div style={{ fontSize: 10, color: '#9ca3af' }}>{a.is_mock ? 'mock' : 'real'}</div>
-                    </div>
+            <div className="grid grid-2">
+              <div className="row" style={{ gap: 16 }}>
+                <ScoreRing value={contentAvg} label="Content" size={112} stroke={10} tone="success" />
+                <div>
+                  <div className="card-title" style={{ fontSize: '.92rem' }}>
+                    Answer quality
                   </div>
+                  <p className="hint" style={{ marginTop: 6, maxWidth: 190 }}>
+                    Relevance, concept coverage, completeness, clarity, grammar and fluency.
+                  </p>
+                  <Badge tone={scoreTone(contentAvg)} className="tiny" >
+                    {scoreCategory(contentAvg)}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="row" style={{ gap: 16 }}>
+                <ScoreRing value={deliveryAvg} label="Delivery" size={112} stroke={10} tone="violet" />
+                <div>
+                  <div className="card-title" style={{ fontSize: '.92rem' }}>
+                    Non-verbal delivery
+                  </div>
+                  <p className="hint" style={{ marginTop: 6, maxWidth: 190 }}>
+                    Observable signals only — face presence, camera-directed gaze and movement.
+                  </p>
+                  <Badge tone={scoreTone(deliveryAvg)}>{scoreCategory(deliveryAvg)}</Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------------- strengths / improvements ---------------------- */}
+      <div className="grid grid-2" style={{ marginBottom: 20 }}>
+        <section className="card card--pad rise rise-2" style={{ borderColor: 'rgba(52,211,153,.28)' }}>
+          <div className="row" style={{ gap: 10, marginBottom: 14 }}>
+            <span className="stat-icon" style={{ color: 'var(--emerald)' }}>
+              <Icon name="award" size={16} />
+            </span>
+            <span className="card-title" style={{ fontSize: '.95rem' }}>
+              Strongest area
+            </span>
+          </div>
+          <p style={{ fontSize: '1.02rem', fontWeight: 600, color: '#6ee7b7' }}>{topStrength}</p>
+          <div className="gap-list" style={{ marginTop: 16 }}>
+            {Object.entries(strengthCounts)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 4)
+              .map(([s, n]) => (
+                <span key={s} className="chip">
+                  {s} <span className="dim">×{n}</span>
+                </span>
+              ))}
+          </div>
+        </section>
+
+        <section className="card card--pad rise rise-3" style={{ borderColor: 'rgba(251,113,133,.28)' }}>
+          <div className="row" style={{ gap: 10, marginBottom: 14 }}>
+            <span className="stat-icon" style={{ color: 'var(--rose)' }}>
+              <Icon name="target" size={16} />
+            </span>
+            <span className="card-title" style={{ fontSize: '.95rem' }}>
+              Needs improvement
+            </span>
+          </div>
+          <p style={{ fontSize: '1.02rem', fontWeight: 600, color: '#fda4af' }}>{topImprove}</p>
+          <div className="gap-list" style={{ marginTop: 16 }}>
+            {Object.entries(improveCounts)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 4)
+              .map(([s, n]) => (
+                <span key={s} className="chip">
+                  {s} <span className="dim">×{n}</span>
+                </span>
+              ))}
+          </div>
+        </section>
+      </div>
+
+      {/* ------------------------- recommendations ------------------------- */}
+      <section className="card card--flush rise rise-3" style={{ marginBottom: 20 }}>
+        <div className="card-head">
+          <div>
+            <div className="card-title">Recommendations</div>
+            <div className="card-sub">Derived from the measured scores for each answer</div>
+          </div>
+          <Badge tone="violet">{recommendations.length} suggested</Badge>
+        </div>
+        <div className="card-body">
+          {recommendations.map((r, i) => (
+            <div key={r} className="reco">
+              <span className="reco-index">{i + 1}</span>
+              <p className="small" style={{ color: 'var(--text-2)', lineHeight: 1.65 }}>
+                {r}
+              </p>
+            </div>
+          ))}
+          <p className="hint" style={{ marginTop: 16 }}>
+            Feedback is generated from measurable NLP and vision signals only. The system does not make
+            psychological claims about how you felt.
+          </p>
+        </div>
+      </section>
+
+      {/* -------------------------- question breakdown -------------------------- */}
+      <section className="card card--flush rise rise-4">
+        <div className="card-head">
+          <div>
+            <div className="card-title">Question-wise breakdown</div>
+            <div className="card-sub">
+              {answers.length} answer{answers.length === 1 ? '' : 's'} · hidden during the interview, revealed here
+            </div>
+          </div>
+          <Badge tone="info">
+            <Icon name="book" size={12} /> Transcripts
+          </Badge>
+        </div>
+
+        <div className="card-body">
+          {answers.length === 0 ? (
+            <EmptyState icon="book" title="No answers recorded" message="This session has no stored answers yet." />
+          ) : (
+            answers.map((a, i) => {
+              const q = session.questions?.[i];
+              const isOpen = open === i;
+              const tone = scoreTone(a.overall_score);
+              return (
+                <div key={a._id || i} className="qa">
+                  <button
+                    type="button"
+                    className="qa-head"
+                    onClick={() => setOpen(isOpen ? -1 : i)}
+                    aria-expanded={isOpen}
+                  >
+                    <span className="qa-title">
+                      <span className="qa-q">
+                        <span className="dim mono">Q{i + 1}</span> {q?.question_text?.slice(0, 95) ?? a.question_id}
+                        {q?.question_text?.length > 95 ? '…' : ''}
+                      </span>
+                      <span className="qa-meta">
+                        {q?.difficulty && <Badge tone="neutral">{q.difficulty}</Badge>}
+                        {q?.is_personalized && <Badge tone="violet">Resume-aware</Badge>}
+                        <span>
+                          {a.is_mock ? 'Estimated from partial metrics' : 'Fully analysed'}
+                        </span>
+                      </span>
+                    </span>
+
+                    <span className="qa-scores">
+                      <span className="qa-score">
+                        <span className="qa-score-k">Content</span>
+                        <span className="qa-score-v">{a.content_score ?? '--'}</span>
+                      </span>
+                      <span className="qa-score">
+                        <span className="qa-score-k">Delivery</span>
+                        <span className="qa-score-v">{a.delivery_score ?? '--'}</span>
+                      </span>
+                      <span className="qa-score">
+                        <span className="qa-score-k">Overall</span>
+                        <span className="qa-score-v" style={{ color: tone === 'success' ? '#6ee7b7' : tone === 'warn' ? '#fcd34d' : '#fda4af' }}>
+                          {a.overall_score ?? '--'}
+                        </span>
+                      </span>
+                      <span className="row" style={{ gap: 6, alignSelf: 'center' }}>
+                        <Icon
+                          name="chevron"
+                          size={16}
+                          style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .25s' }}
+                        />
+                      </span>
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="qa-body">
+                      <div className="grid grid-2" style={{ gap: 20, alignItems: 'start' }}>
+                        {/* content metrics */}
+                        <div className="stack" style={{ gap: 14 }}>
+                          <div className="row" style={{ gap: 8 }}>
+                            <Icon name="book" size={15} />
+                            <span className="label" style={{ margin: 0 }}>
+                              Content analysis
+                            </span>
+                          </div>
+
+                          {a.nlp_metrics ? (
+                            <div className="stack" style={{ gap: 12 }}>
+                              {NLP_FIELDS.map((f) => (
+                                <Meter key={f.key} label={f.label} value={a.nlp_metrics[f.key]} />
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="hint">Content metrics are unavailable for this answer.</p>
+                          )}
+
+                          {a.nlp_metrics?.missing_concepts?.length > 0 && (
+                            <div>
+                              <div className="label" style={{ marginBottom: 8 }}>
+                                Missing concepts
+                              </div>
+                              <div className="gap-list">
+                                {a.nlp_metrics.missing_concepts.slice(0, 6).map((c) => (
+                                  <span key={c} className="chip" style={{ color: '#fcd34d' }}>
+                                    {c}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* delivery metrics */}
+                        <div className="stack" style={{ gap: 14 }}>
+                          <div className="row" style={{ gap: 8 }}>
+                            <Icon name="eye" size={15} />
+                            <span className="label" style={{ margin: 0 }}>
+                              Delivery analysis
+                            </span>
+                          </div>
+
+                          {a.cv_metrics && !a.cv_metrics.error ? (
+                            <div className="stack" style={{ gap: 12 }}>
+                              {CV_FIELDS.map((f) => (
+                                <Meter
+                                  key={f.key}
+                                  label={`${f.label}${f.suffix}`}
+                                  value={a.cv_metrics[f.key]}
+                                />
+                              ))}
+                              <div className="row row--between small">
+                                <span className="dim">Blink rate</span>
+                                <span className="mono">
+                                  {a.cv_metrics.blink_rate != null ? `${a.cv_metrics.blink_rate}/min` : '--'}
+                                </span>
+                              </div>
+                              {a.cv_metrics.frames_analyzed != null && (
+                                <div className="row row--between small">
+                                  <span className="dim">Frames analysed</span>
+                                  <span className="mono">{a.cv_metrics.frames_analyzed}</span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="hint">
+                              {a.cv_metrics?.error
+                                ? `Video: ${a.cv_metrics.error}`
+                                : 'No video supplied for this answer, so delivery could not be measured.'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* transcript */}
+                      <div style={{ marginTop: 20 }}>
+                        <div className="label" style={{ marginBottom: 8 }}>
+                          Transcript
+                        </div>
+                        <div className="qa-transcript">
+                          {a.transcript
+                            ? a.transcript
+                            : a.whisper_error || 'No transcript — the recording was silent or no audio was provided.'}
+                        </div>
+                      </div>
+
+                      {/* per-question feedback */}
+                      {a.feedback && (a.feedback.strengths?.length > 0 || a.feedback.improvements?.length > 0) && (
+                        <div className="grid grid-2" style={{ gap: 12, marginTop: 18 }}>
+                          {a.feedback.strengths?.length > 0 && (
+                            <div className="feedback-block feedback-block--good">
+                              <div className="row" style={{ gap: 8, marginBottom: 8 }}>
+                                <Icon name="check" size={14} style={{ color: 'var(--emerald)' }} />
+                                <span className="label" style={{ margin: 0 }}>
+                                  Strengths
+                                </span>
+                              </div>
+                              <div className="gap-list">
+                                {a.feedback.strengths.map((s) => (
+                                  <span key={s} className="chip">
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {a.feedback.improvements?.length > 0 && (
+                            <div className="feedback-block feedback-block--bad">
+                              <div className="row" style={{ gap: 8, marginBottom: 8 }}>
+                                <Icon name="target" size={14} style={{ color: 'var(--rose)' }} />
+                                <span className="label" style={{ margin: 0 }}>
+                                  Improve
+                                </span>
+                              </div>
+                              <div className="gap-list">
+                                {a.feedback.improvements.map((s) => (
+                                  <span key={s} className="chip">
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })
-          }
+          )}
         </div>
-        <Link to="/dashboard" style={{ display: 'inline-block', marginTop: 12, color: '#4f46e5', fontSize: 13 }}>← Back to Dashboard</Link>
+      </section>
+
+      <div className="row row--between row--wrap rise" style={{ marginTop: 24 }}>
+        <Link to="/dashboard" className="btn btn--ghost">
+          <Icon name="arrow" size={15} style={{ transform: 'rotate(180deg)' }} />
+          Back to dashboard
+        </Link>
+        <Link to="/interview/setup" className="btn btn--outline">
+          Retake with different settings
+          <Icon name="arrow" size={15} />
+        </Link>
       </div>
     </div>
   );
