@@ -26,6 +26,15 @@ FRONTEND_PORT="${FRONTEND_PORT:-5173}"
 PYTHON="${PYTHON:-python3}"
 SKIP_INSTALL="${SKIP_INSTALL:-0}"
 
+if [ "$PYTHON" = "python3" ] && command -v python3 >/dev/null 2>&1; then
+  PYTHON_VERSION="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
+  if [ "$PYTHON_VERSION" = "3.14" ] && [ -x "/usr/local/python/3.13.8/bin/python3.13" ]; then
+    PYTHON="/usr/local/python/3.13.8/bin/python3.13"
+  fi
+fi
+
+PYTHON_MAJOR_MINOR="$($PYTHON -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || true)"
+
 if [ -t 1 ]; then
   C_RESET=$'\033[0m'; C_DIM=$'\033[2m'; C_BOLD=$'\033[1m'
   C_BLUE=$'\033[38;5;69m'; C_CYAN=$'\033[38;5;80m'
@@ -94,14 +103,23 @@ prepare_env() {
 VENV_DIR="$BACKEND_DIR/.venv"
 VENV_PY="$VENV_DIR/bin/python"
 
+venv_matches_python() {
+  [ -x "$VENV_PY" ] && [ "$($VENV_PY -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')" = "$PYTHON_MAJOR_MINOR" ]
+}
+
 backend_ready() {
-  [ -x "$VENV_PY" ] && "$VENV_PY" -c "import uvicorn, fastapi" >/dev/null 2>&1
+  venv_matches_python && "$VENV_PY" -c "import uvicorn, fastapi" >/dev/null 2>&1
 }
 
 install_backend() {
   if [ "$SKIP_INSTALL" = "1" ]; then
     warn "SKIP_INSTALL=1 — not touching backend dependencies"
     return
+  fi
+
+  if [ -d "$VENV_DIR" ] && ! venv_matches_python; then
+    warn "backend/.venv uses Python $($VENV_PY --version 2>&1 | awk '{print $2}'); recreating it for Python $PYTHON_MAJOR_MINOR"
+    rm -rf "$VENV_DIR"
   fi
 
   if [ ! -d "$VENV_DIR" ]; then
