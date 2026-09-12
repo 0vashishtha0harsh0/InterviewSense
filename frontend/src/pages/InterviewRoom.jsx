@@ -698,7 +698,7 @@ export default function InterviewRoom() {
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'rgba(5,7,15,.72)',
+                  background: 'rgba(15,23,42,.55)',
                   backdropFilter: 'blur(6px)',
                   display: 'grid',
                   placeItems: 'center',

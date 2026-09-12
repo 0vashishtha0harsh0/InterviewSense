@@ -95,9 +95,9 @@ export default function Landing() {
           <div className="hero-visual rise rise-3">
             <div className="showcase">
               <div className="showcase-top">
-                <span className="showcase-dot" style={{ background: '#fb7185' }} />
-                <span className="showcase-dot" style={{ background: '#fbbf24' }} />
-                <span className="showcase-dot" style={{ background: '#34d399' }} />
+                <span className="showcase-dot" style={{ background: '#dc2626' }} />
+                <span className="showcase-dot" style={{ background: '#b45309' }} />
+                <span className="showcase-dot" style={{ background: '#0f8a5f' }} />
                 <span className="tiny dim" style={{ marginLeft: 8 }}>
                   interviewsense — live session
                 </span>
@@ -135,7 +135,7 @@ export default function Landing() {
                         padding: '12px 10px',
                         borderRadius: 12,
                         border: '1px solid var(--border)',
-                        background: 'rgba(255,255,255,.03)',
+                        background: 'var(--surface)',
                         textAlign: 'center',
                       }}
                     >
@@ -261,7 +261,7 @@ export default function Landing() {
             className="card card--pad-lg center rise"
             style={{
               background:
-                'radial-gradient(700px 260px at 50% 0%, rgba(99,102,241,.28), transparent 70%), linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02))',
+                'radial-gradient(700px 260px at 50% 0%, rgba(30,58,95,.08), transparent 70%), #ffffff',
             }}
           >
             <h2 className="display-2" style={{ maxWidth: 640, margin: '0 auto' }}>

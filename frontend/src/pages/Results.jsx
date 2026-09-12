@@ -173,7 +173,7 @@ export default function Results() {
 
       {/* ---------------------- strengths / improvements ---------------------- */}
       <div className="grid grid-2" style={{ marginBottom: 20 }}>
-        <section className="card card--pad rise rise-2" style={{ borderColor: 'rgba(52,211,153,.28)' }}>
+        <section className="card card--pad rise rise-2" style={{ borderColor: 'rgba(15,138,95,.3)' }}>
           <div className="row" style={{ gap: 10, marginBottom: 14 }}>
             <span className="stat-icon" style={{ color: 'var(--emerald)' }}>
               <Icon name="award" size={16} />
@@ -182,7 +182,7 @@ export default function Results() {
               Strongest area
             </span>
           </div>
-          <p style={{ fontSize: '1.02rem', fontWeight: 600, color: '#6ee7b7' }}>{topStrength}</p>
+          <p style={{ fontSize: '1.02rem', fontWeight: 600, color: '#047857' }}>{topStrength}</p>
           <div className="gap-list" style={{ marginTop: 16 }}>
             {Object.entries(strengthCounts)
               .sort((a, b) => b[1] - a[1])
@@ -195,7 +195,7 @@ export default function Results() {
           </div>
         </section>
 
-        <section className="card card--pad rise rise-3" style={{ borderColor: 'rgba(251,113,133,.28)' }}>
+        <section className="card card--pad rise rise-3" style={{ borderColor: 'rgba(220,38,38,.25)' }}>
           <div className="row" style={{ gap: 10, marginBottom: 14 }}>
             <span className="stat-icon" style={{ color: 'var(--rose)' }}>
               <Icon name="target" size={16} />
@@ -204,7 +204,7 @@ export default function Results() {
               Needs improvement
             </span>
           </div>
-          <p style={{ fontSize: '1.02rem', fontWeight: 600, color: '#fda4af' }}>{topImprove}</p>
+          <p style={{ fontSize: '1.02rem', fontWeight: 600, color: '#b91c1c' }}>{topImprove}</p>
           <div className="gap-list" style={{ marginTop: 16 }}>
             {Object.entries(improveCounts)
               .sort((a, b) => b[1] - a[1])
@@ -298,7 +298,7 @@ export default function Results() {
                       </span>
                       <span className="qa-score">
                         <span className="qa-score-k">Overall</span>
-                        <span className="qa-score-v" style={{ color: tone === 'success' ? '#6ee7b7' : tone === 'warn' ? '#fcd34d' : '#fda4af' }}>
+                        <span className="qa-score-v" style={{ color: tone === 'success' ? '#047857' : tone === 'warn' ? '#92400e' : '#b91c1c' }}>
                           {a.overall_score ?? '--'}
                         </span>
                       </span>
@@ -341,7 +341,7 @@ export default function Results() {
                               </div>
                               <div className="gap-list">
                                 {a.nlp_metrics.missing_concepts.slice(0, 6).map((c) => (
-                                  <span key={c} className="chip" style={{ color: '#fcd34d' }}>
+                                  <span key={c} className="chip" style={{ color: '#92400e' }}>
                                     {c}
                                   </span>
                                 ))}

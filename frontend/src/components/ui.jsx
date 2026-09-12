@@ -264,13 +264,13 @@ export function ScoreRing({ value, label, caption, size = 150, stroke = 11, tone
   const offset = circumference * (1 - pct / 100);
 
   const palettes = {
-    success: ['#10b981', '#34d399'],
-    warn: ['#f59e0b', '#fbbf24'],
-    danger: ['#e11d48', '#fb7185'],
-    brand: ['#6366f1', '#8b5cf6'],
-    violet: ['#8b5cf6', '#c4b5fd'],
-    cyan: ['#0891b2', '#22d3ee'],
-    neutral: ['#475569', '#94a3b8'],
+    success: ['#0f8a5f', '#10b981'],
+    warn: ['#b45309', '#f59e0b'],
+    danger: ['#dc2626', '#ef4444'],
+    brand: ['#1e3a5f', '#3a6491'],
+    violet: ['#2e5077', '#5b7ba1'],
+    cyan: ['#0e7490', '#0891b2'],
+    neutral: ['#64748b', '#94a3b8'],
   };
   const [from, to] = palettes[resolvedTone] || palettes.brand;
 
@@ -319,9 +319,9 @@ export function Sparkline({ points = [], width = 116, height = 38, tone = 'brand
   if (valid.length < 2) return null;
 
   const palette = {
-    brand: ['#6366f1', '#22d3ee'],
-    success: ['#10b981', '#34d399'],
-    warn: ['#f59e0b', '#fbbf24'],
+    brand: ['#1e3a5f', '#0e7490'],
+    success: ['#0f8a5f', '#10b981'],
+    warn: ['#b45309', '#f59e0b'],
   };
   const [from, to] = palette[tone] || palette.brand;
   const id = `spark-${tone}`;
@@ -380,10 +380,10 @@ export function TrendChart({ scores = [] }) {
           const tone = score >= 70 ? 'success' : score >= 60 ? 'warn' : 'danger';
           const fill =
             tone === 'success'
-              ? 'linear-gradient(180deg,#6366f1,#22d3ee)'
+              ? 'linear-gradient(180deg,#1e3a5f,#3a6491)'
               : tone === 'warn'
-                ? 'linear-gradient(180deg,#f59e0b,#fbbf24)'
-                : 'linear-gradient(180deg,#e11d48,#fb7185)';
+                ? 'linear-gradient(180deg,#b45309,#f59e0b)'
+                : 'linear-gradient(180deg,#dc2626,#ef4444)';
           return (
             <div
               key={i}
@@ -419,7 +419,7 @@ export function TrendChart({ scores = [] }) {
                   height: `${Math.max(6, score)}%`,
                   background: fill,
                   borderRadius: '8px 8px 0 0',
-                  boxShadow: hover === i ? '0 0 22px rgba(99,102,241,.5)' : 'none',
+                  boxShadow: hover === i ? '0 4px 16px rgba(30,58,95,.35)' : 'none',
                   transform: hover === i ? 'scaleX(1.06)' : 'none',
                   transformOrigin: 'bottom',
                   transition: 'transform .2s, box-shadow .2s',
@@ -450,12 +450,12 @@ export function TrendChart({ scores = [] }) {
    -------------------------------------------------------------------------- */
 export function StatCard({ label, value, suffix, hint, icon, tone = 'brand', delay = 0 }) {
   const tints = {
-    brand: 'rgba(99,102,241,.3)',
-    success: 'rgba(52,211,153,.28)',
-    warn: 'rgba(251,191,36,.26)',
-    danger: 'rgba(251,113,133,.26)',
-    violet: 'rgba(139,92,246,.28)',
-    cyan: 'rgba(34,211,238,.26)',
+    brand: 'rgba(30,58,95,.14)',
+    success: 'rgba(15,138,95,.14)',
+    warn: 'rgba(180,83,9,.14)',
+    danger: 'rgba(220,38,38,.14)',
+    violet: 'rgba(46,80,119,.14)',
+    cyan: 'rgba(14,116,144,.14)',
   };
   return (
     <div className={`stat${delay ? ` rise rise-${delay}` : ''}`} style={{ '--stat-tint': tints[tone] || tints.brand }}>
