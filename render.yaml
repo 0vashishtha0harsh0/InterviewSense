@@ -1,0 +1,52 @@
+# =============================================================================
+# InterviewSense — Render Blueprint
+# https://render.com/docs/blueprint-spec
+#
+# Deploy: Render Dashboard → New → Blueprint → pick this repo.
+# Render reads render.yaml and creates the service with the settings below.
+#
+# NOTE on runtime: Whisper, OpenCV and MediaPipe are heavy native libraries,
+# so the API runs as a Docker service (backend/Dockerfile). Keep instance type
+# "starter" or above; free tier instances sleep and model loading takes ~1-2 min
+# after wake-up.
+# =============================================================================
+
+services:
+  - type: web
+    name: interviewsense-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter # change to "free" for testing only (cold starts + sleep)
+    region: oregon
+    healthCheckPath: /api/health
+    autoDeploy: true # deploy on every push to the branch below
+    branch: master
+    # Whisper needs a little warm-up and downloads models on first use.
+    # 512MB is too tight once the model loads; Render default (512) is overridden below.
+    disk:
+      name: whisper-models
+      mountPath: /root/.cache/whisper
+      sizeGB: 1 # optional: persists downloaded Whisper models across deploys
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: MONGODB_URL
+        sync: false # set in dashboard: mongodb+srv://<user>:<pass>@<cluster>/...
+      - key: MONGODB_DB_NAME
+        value: interviewsense
+      - key: JWT_SECRET
+        generateValue: true # auto-generated 64-char secret on first deploy
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: "1440"
+      - key: WHISPER_MODEL
+        value: base # "tiny" is faster/cheaper if base is too slow on starter
+      - key: QUESTION_COUNT
+        value: "10"
+      - key: CORS_ORIGINS
+        # Replace <vercel-app> with your real Vercel domain after the first deploy.
+        value: http://localhost:5173,http://127.0.0.1:5173,https://interviewsense.vercel.app
+      - key: PORT
+        value: "8000"
